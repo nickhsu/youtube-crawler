@@ -41,10 +41,11 @@ class YoutubeFetcher:
         content = content.decode('utf-8')
         if res.status != 200:
             logging.debug("status error:{}, {}".format(res.status, content))
-            return False
-        if content.find("too_many_recent_calls") != -1:
-            #ban by server or no video
-            raise IOError
+            if content.find("too_many_recent_calls") != -1:
+                #ban by server or no video
+                raise IOError
+            else:
+                return False
         else:
             return content
 
@@ -66,7 +67,7 @@ class YoutubeCrawler:
                     if data:
                         entrys.append(data)
                 except IOError:
-                    time.sleep(60)
+                    time.sleep(300)
 
                 self.lock.acquire()
                 self.entrys.extend(entrys)
