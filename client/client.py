@@ -21,7 +21,7 @@ import urllib.parse
 
 NUM_THREAD = 10
 SERVER_URI = 'http://gaisq.cs.ccu.edu.tw:4567/'
-NUM_ID_FETCHED = 10000
+NUM_ID_FETCHED = 3000
 
 level = logging.DEBUG
 format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
