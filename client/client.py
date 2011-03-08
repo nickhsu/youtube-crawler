@@ -18,11 +18,10 @@ import json
 import math
 import logging
 import urllib.parse
-import zlib
 
 NUM_THREAD = 10
-#SERVER_URI = 'http://gaisq.cs.ccu.edu.tw:4567/'
-SERVER_URI = 'http://localhost:4567/'
+SERVER_URI = 'http://gaisq.cs.ccu.edu.tw:4567/'
+#SERVER_URI = 'http://localhost:4567/'
 NUM_ID_FETCHED = 1000
 
 level = logging.DEBUG
@@ -94,8 +93,13 @@ class YoutubeCrawler:
 	def post_entrys(self, entrys):
 		conn = httplib2.Http()
 		json_data = json.dumps(entrys).encode('utf-8')
-		data = {'entrys': zlib.compress(json_data)}
-		resp, content = conn.request("{}youtube/entrys/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
+		data = {'entrys': json_data}
+                while True:
+                    try:
+                        resp, content = conn.request("{}youtube/entrys/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
+                        break
+                    except:
+		        conn = httplib2.Http()
 
 	def run(self):
 		while True:
