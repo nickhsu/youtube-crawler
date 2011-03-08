@@ -22,7 +22,7 @@ import urllib.parse
 NUM_THREAD = 10
 SERVER_URI = 'http://gaisq.cs.ccu.edu.tw:4567/'
 #SERVER_URI = 'http://localhost:4567/'
-NUM_ID_FETCHED = 1000
+NUM_ID_FETCHED = 100
 
 level = logging.DEBUG
 format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -94,12 +94,12 @@ class YoutubeCrawler:
 		conn = httplib2.Http()
 		json_data = json.dumps(entrys).encode('utf-8')
 		data = {'entrys': json_data}
-                while True:
-                    try:
-                        resp, content = conn.request("{}youtube/entrys/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
-                        break
-                    except:
-		        conn = httplib2.Http()
+		while True:
+			try:
+				resp, content = conn.request("{}youtube/entrys/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
+				break
+			except:
+				conn = httplib2.Http()
 
 	def run(self):
 		while True:
@@ -119,8 +119,8 @@ class YoutubeCrawler:
 			for t in threads:	
 				t.join()
 
-			#self.post_vids(vids)
-			self.post_entrys(entrys)
+			t = threading.Thread(target=self.post_entrys, args=(entrys,))
+			t.start()
 
 if __name__ == '__main__':
 	crawler = YoutubeCrawler(NUM_THREAD)
