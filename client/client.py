@@ -87,13 +87,15 @@ class YoutubeCrawler:
 			return []
 
 	def post_vids(self, vids):
+		conn = httplib2.Http()
 		data = {'ids': json.dumps(vids)}
-		resp, content = self.server_conn.request("{}youtube/fetched_ids/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
+		resp, content = conn.request("{}youtube/fetched_ids/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
 
 	def post_entrys(self, entrys):
+		conn = httplib2.Http()
 		json_data = json.dumps(entrys).encode('utf-8')
 		data = {'entrys': zlib.compress(json_data)}
-		resp, content = self.server_conn.request("{}youtube/entrys/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
+		resp, content = conn.request("{}youtube/entrys/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
 
 	def run(self):
 		while True:
