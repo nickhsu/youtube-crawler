@@ -25,7 +25,7 @@ def GAIS_format(entry):
     for c in entry['entry']['category']:
         category += "{},".format(c['term'])
     gais_rec += "@category:{}".format(category) #final line doesn't need "\n"
-
+    
     return gais_rec
 
 if __name__ == '__main__':
