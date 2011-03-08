@@ -3,6 +3,15 @@
 require 'sinatra'
 require 'thin_parser'
 require 'json'
+require 'zlib'
+
+def inflate(string)
+	zstream = Zlib::Inflate.new
+	buf = zstream.inflate(string)
+	zstream.finish
+	zstream.close
+	buf
+end
 
 #const
 DEFAULT_GET_LIMIT = 10000
@@ -46,7 +55,7 @@ end
 #youtube entry
 post '/youtube/entrys/' do
 	#batch post
-	entrys = JSON.parse(params['entrys'])
+	entrys = JSON.parse(inflate(params['entrys']))
 	entrys.each do |entry|
 		entry_db.puts entry
 	end
