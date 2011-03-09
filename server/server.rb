@@ -9,8 +9,8 @@ require 'zlib'
 DEFAULT_GET_LIMIT = 10000
 
 id_db = File.open('./id', "a+")
-#fetched_id_db = File.open('./fetched_id', 'a+')
-entry_db = File.open('./entry_test', 'a+')
+fetched_id_db = File.open('./fetched_id', 'a+')
+entry_db = File.open('./entry', 'a+')
 
 #youtube id
 get '/youtube/ids/' do
@@ -35,7 +35,6 @@ post '/youtube/ids' do
 	end
 end
 
-=begin
 #youtube fetched id
 post '/youtube/fetched_ids/' do
 	#batch post
@@ -44,12 +43,10 @@ post '/youtube/fetched_ids/' do
 		fetched_id_db.puts id
 	end
 end
-=end
 
 #youtube entry
 post '/youtube/entrys/' do
 	#batch post
-	#entrys = JSON.parse(inflate(params['entrys']))
 	entrys = JSON.parse(params['entrys'])
 	entrys.each do |entry|
 		entry_db.puts entry

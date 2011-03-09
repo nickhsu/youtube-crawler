@@ -122,6 +122,9 @@ class YoutubeCrawler:
 			t = threading.Thread(target=self.post_entrys, args=(entrys,))
 			t.start()
 
+			t = threading.Thread(target=self.post_vids, args=(vids,))
+			t.start()
+
 if __name__ == '__main__':
 	crawler = YoutubeCrawler(NUM_THREAD)
 	crawler.run()
