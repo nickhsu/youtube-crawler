@@ -16,13 +16,12 @@ import tempfile
 import threading
 import json
 import math
-import logging
 import urllib.parse
 
 NUM_THREAD = 10
 SERVER_URI = 'http://gaisq.cs.ccu.edu.tw:4567/'
 #SERVER_URI = 'http://localhost:4567/'
-NUM_ID_FETCHED = 100
+NUM_ID_FETCHED = 500
 
 level = logging.DEBUG
 format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -38,10 +37,16 @@ class YoutubeFetcher:
 		self.conn = httplib2.Http()
 
 	def get_enrty(self, vid):
-		res, content = self.conn.request("http://gdata.youtube.com/feeds/api/videos/" + vid + "?alt=json")
-		content = content.decode('utf-8')
+		while True:
+			try:
+				res, content = self.conn.request("http://gdata.youtube.com/feeds/api/videos/" + vid + "?alt=json")
+				content = content.decode('utf-8')
+				break
+			except:
+				self.conn = httplib2.Http()
+
 		if res.status != 200:
-			logging.debug("status error:{}, {}".format(res.status, content))
+			#logging.debug("status error:{}, {}".format(res.status, content))
 			if content.find("too_many_recent_calls") != -1:
 				#ban by server or no video
 				raise IOError
@@ -70,9 +75,9 @@ class YoutubeCrawler:
 				except IOError:
 					time.sleep(300)
 
-				self.lock.acquire()
-				self.entrys.extend(entrys)
-				self.lock.release()
+			self.lock.acquire()
+			self.entrys.extend(entrys)
+			self.lock.release()
 
 	def __init__(self, num_thread):
 		self.num_thread = num_thread
@@ -86,11 +91,13 @@ class YoutubeCrawler:
 			return []
 
 	def post_vids(self, vids):
+		logging.info("post vids, size = {}".format(len(vids)))
 		conn = httplib2.Http()
 		data = {'ids': json.dumps(vids)}
 		resp, content = conn.request("{}youtube/fetched_ids/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
 
 	def post_entrys(self, entrys):
+		logging.info("post entrys, size = {}".format(len(entrys)))
 		conn = httplib2.Http()
 		json_data = json.dumps(entrys).encode('utf-8')
 		data = {'entrys': json_data}
