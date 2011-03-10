@@ -2,11 +2,12 @@
 
 require 'sinatra'
 require 'thin_parser'
-require 'json'
-require 'zlib'
+require 'yajl/json_gem'
 
 #const
 DEFAULT_GET_LIMIT = 10000
+
+set :environment, :production
 
 id_db = File.open('./id', "a+")
 fetched_id_db = File.open('./fetched_id', 'a+')
