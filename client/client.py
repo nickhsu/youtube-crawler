@@ -9,19 +9,17 @@ TODO:
 
 import sys
 import logging
-import subprocess
 import httplib2
 import time
-import tempfile
 import threading
 import json
 import math
 import urllib.parse
+import getopt
 
-NUM_THREAD = 10
-SERVER_URI = 'http://gaisq.cs.ccu.edu.tw:4567/'
-#SERVER_URI = 'http://localhost:4567/'
-NUM_ID_FETCHED = 500
+DEFAULT_NUM_THREAD = 20
+DEFAULT_SERVER_URI = 'http://localhost:4567/'
+DEFAULT_NUM_ID_FETCHED = 5000
 
 level = logging.DEBUG
 format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -79,12 +77,14 @@ class YoutubeCrawler:
 			self.entrys.extend(entrys)
 			self.lock.release()
 
-	def __init__(self, num_thread):
+	def __init__(self, num_thread, num_id_fetched, server_uri):
+		self.num_id_fetched = num_id_fetched
+		self.server_uri = server_uri
 		self.num_thread = num_thread
 		self.server_conn = httplib2.Http()
 
 	def get_vids(self):
-		resp, content = self.server_conn.request("{}youtube/ids/?limit={}".format(SERVER_URI,NUM_ID_FETCHED))
+		resp, content = self.server_conn.request("{}/youtube/ids/?limit={}".format(self.server_uri, self.num_id_fetched))
 		if resp.status == 200:
 			return json.loads(content.decode("utf-8"))
 		else:
@@ -94,7 +94,7 @@ class YoutubeCrawler:
 		logging.info("post vids, size = {}".format(len(vids)))
 		conn = httplib2.Http()
 		data = {'ids': json.dumps(vids)}
-		resp, content = conn.request("{}youtube/fetched_ids/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
+		resp, content = conn.request("{}/youtube/fetched_ids/".format(self.server_uri), "POST", urllib.parse.urlencode(data))
 
 	def post_entrys(self, entrys):
 		logging.info("post entrys, size = {}".format(len(entrys)))
@@ -103,7 +103,7 @@ class YoutubeCrawler:
 		data = {'entrys': json_data}
 		while True:
 			try:
-				resp, content = conn.request("{}youtube/entrys/".format(SERVER_URI), "POST", urllib.parse.urlencode(data))
+				resp, content = conn.request("{}/youtube/entrys/".format(self.server_uri), "POST", urllib.parse.urlencode(data))
 				break
 			except:
 				conn = httplib2.Http()
@@ -132,6 +132,29 @@ class YoutubeCrawler:
 			t = threading.Thread(target=self.post_vids, args=(vids,))
 			t.start()
 
+def usage():
+	print("usage: ./client.py -t num_thread -n num_id_fetched -s server_uri")
+
 if __name__ == '__main__':
-	crawler = YoutubeCrawler(NUM_THREAD)
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], "t:n:s:h")
+	except getopt.GetoptError as err:
+		print(err)
+		usage()
+		sys.exit(2)
+	
+	num_thread = DEFAULT_NUM_THREAD
+	server_uri = DEFAULT_SERVER_URI
+	num_id_fetched = DEFAULT_NUM_ID_FETCHED
+	for o, a in opts:
+		if o == "-t":
+			num_thread = int(a)
+		elif o == "-n":
+			num_id_fetched = int(a)
+		elif o == "-s":
+			server_uri = "http://{}".format(a)
+		elif o == "-h":
+			usage()		
+	
+	crawler = YoutubeCrawler(num_thread, num_id_fetched, server_uri)
 	crawler.run()
