@@ -5,7 +5,7 @@
 
 #include "bloom_filter.hpp"
 
-const int BUF_SIZ = 4096;
+const int BUF_SIZ = 102400;
 
 void usage() {
 		printf("usage: bloom-uniq -e error_rate -n num_item < file_name\n");

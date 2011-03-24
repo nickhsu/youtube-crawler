@@ -3,12 +3,11 @@
 import json
 import sys
 
-def GAIS_format(entry):
-    gais_rec = ''
-    gais_rec += "{}".format(entry['entry']['id']['$t'].split('/')[-1])
-    return gais_rec
-
 if __name__ == '__main__':
-    for line in sys.stdin:
-        entry = json.loads(line)
-        print(GAIS_format(entry))
+	for line in sys.stdin:
+		#line = line.strip()
+		try:
+			entry = json.loads(line)
+			print("{}".format(entry['entry']['id']['$t'].split('/')[-1]))
+		except:
+			pass
