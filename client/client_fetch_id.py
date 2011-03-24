@@ -1,36 +1,74 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
-import urllib2
+import httplib2
 import time
-import re
+import json
+import urllib
 
-def get_vid_list(data):
-	return re.findall('<id>http:\/\/gdata.youtube.com\/feeds\/api\/videos\/(.*?)<\/id>', data)
+SERVER_URL = 'http://gaisq.cs.ccu.edu.tw:4567'
 
-class ThreadFetcher(threading.Thread):
-	def __init__(self, queue):
-		threading.Thread.__init__(self)
-		self.queue = queue
+class YoutubeRelatedFetcher:
+	def __init__(self):
+		self.conn = httplib2.Http()
 
-	def run(self):
-		global db
+	def get_related_id(self, vid):
 		while True:
-			vid = self.queue.get()
-			url = "http://gdata.youtube.com/feeds/api/videos/" + vid + "/related?max-results=50&fields=entry(id)"
-			print("get " + vid)
 			try:
-				data = urllib2.urlopen(url).read()
-				if data == None or data.find("too_many_recent_calls") != -1:
-					print("sleep")
-					time.sleep(60)
-				else:
-					for x in get_vid_list(data):
-						db['vid'].insert({"id": x})
-					db['vid'].update({'id':vid}, {"$set": {"get_related": True}})
+				res, content = self.conn.request("http://gdata.youtube.com/feeds/api/videos/" + vid + "/related?max-results=50&fields=entry(id)&alt=json")
+				content = content.decode('utf-8')
+				break
 			except:
-				pass
-			self.queue.task_done()
+				self.conn = httplib2.Http()
+		
+		if res.status != 200:
+			if content.find("too_many_recent_calls") != -1:
+				#ban by server or no video
+				raise IOError
+			else:
+				return False
+		else:
+			data = json.loads(content)
+			related_id = []
+			for t in data['feed']['entry']:
+				related_id.append(t['id']['$t'].split('/')[-1])
+			return related_id
 
-def get
+def get_vids():
+	conn = httplib2.Http()
+	resp, content = conn.request("{}/youtube/related_ids/?limit={}".format(SERVER_URL, 100))
+	if resp.status == 200:
+		return json.loads(content.decode("utf-8"))
+	else:
+		return []
 
+def post_vids(vids):
+	print("post vids, size = {}".format(len(vids)))
+	conn = httplib2.Http()
+	data = {'ids': json.dumps(vids)}
+	resp, content = conn.request("{}/youtube/ids/".format(SERVER_URL), "POST", urllib.parse.urlencode(data))
+
+def post_vids_fetched(vids):
+	print("post vids fetched, size = {}".format(len(vids)))
+	conn = httplib2.Http()
+	data = {'ids': json.dumps(vids)}
+	resp, content = conn.request("{}/youtube/related_ids/".format(SERVER_URL), "POST", urllib.parse.urlencode(data))
+
+if __name__ == '__main__':
+	fetcher = YoutubeRelatedFetcher()
+	while True:
+		vids = get_vids()
+		if len(vids) == 0:
+			break
+		related_ids = []
+		for vid in vids:
+			try:
+				tmp = fetcher.get_related_id(vid)
+			except:
+				print("sleep")
+				time.sleep(300)
+			if tmp:
+				related_ids.extend(tmp)
+
+		post_vids(related_ids)
+		post_vids_fetched(related_ids)
