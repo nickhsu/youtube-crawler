@@ -66,7 +66,8 @@ if __name__ == '__main__':
 				tmp = fetcher.get_related_id(vid)
 			except:
 				print("sleep")
-				time.sleep(300)
+				fetcher = YoutubeRelatedFetcher()
+				time.sleep(10)
 			if tmp:
 				related_ids.extend(tmp)
 
