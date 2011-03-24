@@ -17,6 +17,8 @@ import math
 import urllib.parse
 import getopt
 
+import youtube_fetcher
+
 DEFAULT_NUM_THREAD = 20
 DEFAULT_SERVER_URI = 'http://localhost:4567/'
 DEFAULT_NUM_ID_FETCHED = 5000
@@ -29,29 +31,6 @@ def chunks(l, n):
 	#Yield successive n-sized chunks from l.
 	for i in range(0, len(l), n):
 		yield l[i:i+n]
-
-class YoutubeFetcher:
-	def __init__(self):
-		self.conn = httplib2.Http()
-
-	def get_enrty(self, vid):
-		while True:
-			try:
-				res, content = self.conn.request("http://gdata.youtube.com/feeds/api/videos/" + vid + "?alt=json")
-				content = content.decode('utf-8')
-				break
-			except:
-				self.conn = httplib2.Http()
-
-		if res.status != 200:
-			#logging.debug("status error:{}, {}".format(res.status, content))
-			if content.find("too_many_recent_calls") != -1:
-				#ban by server or no video
-				raise IOError
-			else:
-				return False
-		else:
-			return content
 
 class YoutubeCrawler:
 	class FetcherThread(threading.Thread):
