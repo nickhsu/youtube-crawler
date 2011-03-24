@@ -9,7 +9,7 @@ DEFAULT_GET_LIMIT = 10000
 
 set :environment, :production
 
-id_db = File.open('./id', "a+")
+id_db = File.open('./id_db', "a+")
 id_need_fetch = File.open('./id_need_fetch', "r")
 id_fetched = File.open('./id_fetched', 'a+')
 
@@ -37,7 +37,7 @@ end
 post '/youtube/related_ids/' do
 	ids = JSON.parse(params['ids'])
 	ids.each do |id|
-		related_id_fetched.put id
+		related_id_fetched.puts id
 	end
 
 end
@@ -58,10 +58,10 @@ get '/youtube/ids/' do
 	ids.to_json
 end
 
-post '/youtube/ids' do
+post '/youtube/ids/' do
 	ids = JSON.parse(params['ids'])
-	ids.each do |id|
-		id_db.put id
+    ids.each do |id|
+      id_db.puts id
 	end
 end
 

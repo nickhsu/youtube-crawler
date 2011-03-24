@@ -71,4 +71,4 @@ if __name__ == '__main__':
 				related_ids.extend(tmp)
 
 		post_vids(related_ids)
-		post_vids_fetched(related_ids)
+		post_vids_fetched(vids)
