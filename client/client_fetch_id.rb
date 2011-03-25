@@ -51,7 +51,7 @@ while true
     reqs << req
   end
 
-  log.info("start fetcher")
+  log.info("fetch data")
   hydra.run
 
   ban = false
@@ -60,22 +60,22 @@ while true
     res = req.response
     if res.code == 200
       parse_related_id(res.body).each do |id|
-        id_db.puts id
+        id_db.puts id.chomp
       end
       id_fetched.puts parse_id(res.effective_url)
     elsif res.code == 403 and res.body.index("too_many_recent_calls")
       #retry this urls next time
-      queue << parse_id(res.effective_url)
+      queue << parse_id(res.effective_url).chomp
       ban = true
     else
       #other error, e.g. video not found
-      id_fetched.puts parse_id(res.effective_url)
+      id_fetched.puts parse_id(res.effective_url).chomp
     end
   end
 
   if ban
     log.info("sleep")
-    sleep(60)
+    sleep(180)
   end
 
 end

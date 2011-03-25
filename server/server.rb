@@ -7,9 +7,9 @@ require 'yajl/json_gem'
 #const
 DEFAULT_GET_LIMIT = 10000
 
-set :environment, :production
+#set :environment, :production
 
-id_db = File.open('./id_db', "a+")
+#id_db = File.open('./id_db', "a+")
 id_need_fetch = File.open('./id_need_fetch', "r")
 id_fetched = File.open('./id_fetched', 'a+')
 
