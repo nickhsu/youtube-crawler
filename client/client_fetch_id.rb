@@ -40,7 +40,7 @@ while true
     break
   end
 
-  hydra = Typhoeus::Hydra.new(:max_concurrency => 10)
+  hydra = Typhoeus::Hydra.new(:max_concurrency => 20)
   reqs = []
   header = {"Accept-Encoding" => "gzip,deflate,sdch"}
 
