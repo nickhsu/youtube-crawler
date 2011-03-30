@@ -17,7 +17,7 @@ import math
 import urllib.parse
 import getopt
 
-import youtube_fetcher
+import youtube
 
 DEFAULT_NUM_THREAD = 20
 DEFAULT_SERVER_URI = 'http://localhost:4567/'
@@ -41,7 +41,7 @@ class YoutubeCrawler:
 			threading.Thread.__init__(self)
 
 		def run(self):
-			fetcher = YoutubeFetcher()
+			fetcher = youtube.Fetcher()
 			entrys = []
 			for vid in self.vids:
 				try:
@@ -50,6 +50,7 @@ class YoutubeCrawler:
 					if data:
 						entrys.append(data)
 				except IOError:
+					fetcher = youtube.Fetcher()
 					time.sleep(300)
 
 			self.lock.acquire()
