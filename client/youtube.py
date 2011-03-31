@@ -8,7 +8,7 @@ class Fetcher:
 		self.__conn = httplib2.Http()
 
 	def get_enrty(self, vid):
-		res, content = self.req("http://gdata.youtube.com/feeds/api/videos/" + vid + "?alt=json")
+		res, content = self.__req("http://gdata.youtube.com/feeds/api/videos/" + vid + "?alt=json")
 
 		if res.status != 200:
 			#logging.debug("status error:{}, {}".format(res.status, content))
