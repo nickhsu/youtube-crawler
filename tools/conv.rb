@@ -18,6 +18,12 @@ def json2gais(data)
     buf += "@viewCount:#{data['entry']['yt$statistics']['viewCount']}\n"
     buf += "@duration:#{data['entry']['media$group']['yt$duration']['seconds']}\n"
     buf += "@category:#{data['entry']['category'][1]['label']}\n"
+
+    #format = ''
+    #data['entry']['media$group']['media$content'].each do |c|
+    #  format += "#{c['yt$format']},"
+    #end
+    #buf += "@format:#{format}"
     return buf
   rescue
     return nil

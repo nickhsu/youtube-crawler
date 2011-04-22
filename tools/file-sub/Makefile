@@ -1,2 +1,4 @@
 all:
-	g++ -I /usr/local/include/ -O3 -o file-sub main.cpp
+	gcc -O3 -o file-sub main.c
+clean:
+	rm -rf file-sub
