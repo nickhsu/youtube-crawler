@@ -4,13 +4,20 @@ import httplib2
 import json
 
 class Fetcher:
-	def __init__(self):
+	def __init__(self, api_key):
 		self.__conn = httplib2.Http()
+		self.__api_key = api_key
 
 	def get_enrty(self, vid):
-		res, content = self.__req("http://gdata.youtube.com/feeds/api/videos/" + vid + "?alt=json")
-
+		res, content = self.__req("http://gdata.youtube.com/feeds/api/videos/" + vid + "?alt=json&key=" + self.__api_key)
+		#print(res)
+		#print("\n")
 		if res.status != 200:
+			#print(res)
+			#print("\n")
+			#print(content)
+			#print("\n")
+			#self.__conn = httplib2.Http()
 			#logging.debug("status error:{}, {}".format(res.status, content))
 			if content.find("too_many_recent_calls") != -1:
 				#ban by server or no video

@@ -40,7 +40,7 @@ while true
     break
   end
 
-  hydra = Typhoeus::Hydra.new(:max_concurrency => 20)
+  hydra = Typhoeus::Hydra.new(:max_concurrency => 10)
   reqs = []
   header = {"Accept-Encoding" => "gzip,deflate,sdch"}
 
@@ -75,7 +75,7 @@ while true
 
   if ban
     log.info("sleep")
-    sleep(180)
+    sleep(300)
   end
 
 end

@@ -34,14 +34,16 @@ def chunks(l, n):
 
 class YoutubeCrawler:
 	class FetcherThread(threading.Thread):
-		def __init__(self, vids, entrys, lock):
+		def __init__(self, vids, entrys, lock, api_key):
 			self.vids = vids
 			self.entrys = entrys
 			self.lock = lock
+			self.ban_count = 0
+			self.api_key = api_key
 			threading.Thread.__init__(self)
 
 		def run(self):
-			fetcher = youtube.Fetcher()
+			fetcher = youtube.Fetcher(self.api_key)
 			entrys = []
 			for vid in self.vids:
 				try:
@@ -49,18 +51,28 @@ class YoutubeCrawler:
 					data = fetcher.get_enrty(vid)
 					if data:
 						entrys.append(data)
+					#time.sleep(0.3)
 				except IOError:
-					fetcher = youtube.Fetcher()
-					time.sleep(300)
+					fetcher = youtube.Fetcher(self.api_key)
+					#logging.info("sleep in thread {}".format(self.name))
+					#time.sleep(150)
+					#self.ban_count += 1
+					#print(self.ban_count)
+					#print("\n")
+					#if self.ban_count % 100 == 0:
+					logging.info("sleep in thread {}".format(self.name))
+					time.sleep(30)
+
 
 			self.lock.acquire()
 			self.entrys.extend(entrys)
 			self.lock.release()
 
-	def __init__(self, num_thread, num_id_fetched, server_uri):
+	def __init__(self, num_thread, num_id_fetched, server_uri, api_key):
 		self.num_id_fetched = num_id_fetched
 		self.server_uri = server_uri
 		self.num_thread = num_thread
+		self.api_key = api_key
 		self.server_conn = httplib2.Http()
 
 	def get_vids(self):
@@ -99,7 +111,7 @@ class YoutubeCrawler:
 				break
 
 			for x in chunks(vids, math.ceil(len(vids) / self.num_thread)):
-				t = self.FetcherThread(x, entrys, lock)
+				t = self.FetcherThread(x, entrys, lock, self.api_key)
 				t.setDaemon(True)
 				threads.append(t)
 				t.start()
@@ -117,7 +129,7 @@ def usage():
 
 if __name__ == '__main__':
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "t:n:s:h")
+		opts, args = getopt.getopt(sys.argv[1:], "k:t:n:s:h")
 	except getopt.GetoptError as err:
 		print(err)
 		usage()
@@ -126,7 +138,10 @@ if __name__ == '__main__':
 	num_thread = DEFAULT_NUM_THREAD
 	server_uri = DEFAULT_SERVER_URI
 	num_id_fetched = DEFAULT_NUM_ID_FETCHED
+	api_key = ''
 	for o, a in opts:
+		if o == "-k":
+			api_key = a
 		if o == "-t":
 			num_thread = int(a)
 		elif o == "-n":
@@ -136,5 +151,5 @@ if __name__ == '__main__':
 		elif o == "-h":
 			usage()		
 	
-	crawler = YoutubeCrawler(num_thread, num_id_fetched, server_uri)
+	crawler = YoutubeCrawler(num_thread, num_id_fetched, server_uri, api_key)
 	crawler.run()
