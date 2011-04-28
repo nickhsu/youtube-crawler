@@ -19,11 +19,19 @@ def json2gais(data)
     buf += "@duration:#{data['entry']['media$group']['yt$duration']['seconds']}\n"
     buf += "@category:#{data['entry']['category'][1]['label']}\n"
 
+    #get video source
+    buf += "@src:"
+    data['entry']['media$group']['media$content'].each do |c|
+      buf += c['url'] if c['type'] == "application/x-shockwave-flash"
+    end
+    buf += "\n"
+
     #format = ''
     #data['entry']['media$group']['media$content'].each do |c|
     #  format += "#{c['yt$format']},"
     #end
     #buf += "@format:#{format}"
+
     return buf
   rescue
     return nil
@@ -40,4 +48,5 @@ STDIN.each_line do |line|
     puts gais unless gais.nil?
   rescue
   end
+  #break
 end
