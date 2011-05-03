@@ -32,7 +32,7 @@ while true
   #read unfetched id
   queue = []
   begin
-    1000.times do
+    100.times do
       id = id_need_fetch.readline.chomp!
       queue << id unless id.empty?
     end
@@ -45,7 +45,7 @@ while true
   header = {"Accept-Encoding" => "gzip,deflate,sdch"}
 
   queue.each do |id|
-    req = Typhoeus::Request.new("http://gdata.youtube.com/feeds/api/videos/#{id}/related?max-results=50&fields=entry(id)&alt=json",
+    req = Typhoeus::Request.new("http://gdata.youtube.com/feeds/api/videos/#{id}/related?max-results=50&fields=entry(id)&alt=json&key=AI39si6q8mVs06sYZDBUWGhVFlgNjq4Z0D4Rg3a-FQRjtxPHGIct1cy2PaXQuN3JkRAeaZUJKyperX8H6cMivJEG7lQdb0Qr8A",
                                 :header => header)
     hydra.queue req
     reqs << req
@@ -56,7 +56,7 @@ while true
 
   ban = false
   reqs.each do |req|
-    next unless req
+    next if req.nil? or req.response.nil?
     res = req.response
     if res.code == 200
       parse_related_id(res.body).each do |id|
