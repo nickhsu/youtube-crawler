@@ -60,7 +60,7 @@ class YoutubeCrawler:
 					#print(self.ban_count)
 					#print("\n")
 					#if self.ban_count % 100 == 0:
-					logging.info("sleep in thread {}".format(self.name))
+					#logging.info("sleep in thread {}".format(self.name))
 					time.sleep(30)
 
 
