@@ -23,17 +23,19 @@ HOSTS_GAIS = [
 HOSTS_CSIE.each do |h|
   Net::SSH.start(h['host'], h['user']) do |ssh|
     puts 'kill client in ' + h['host']
-    ssh.exec!('kill `ps -l | grep python | head -n 1 | awk \'{print $2}\'`')
+    puts ssh.exec!('kill -9 `ps -aux | grep python | awk \'{print $2}\'`')
     puts 'start client in ' + h['host']
-    ssh.exec("nohup ~/youtube-crawler/client/client.py -s gaisq.cs.ccu.edu.tw:4567 -t 10 -n 500 -k \"#{h['key']}\" > ./log#{h['host']} &")
+    puts ssh.exec("nohup ~/youtube-crawler/client/client.py -s gaisq.cs.ccu.edu.tw:4567 -t 10 -n 500 -k \"#{h['key']}\" >> ./log#{h['host']} &")
   end
 end
 
 HOSTS_GAIS.each do |h|
   Net::SSH.start(h['host'], h['user']) do |ssh|
     puts 'kill client in ' + h['host']
-    ssh.exec!('kill `ps -l | grep python | head -n 1 | awk \'{print $2}\'`')
+    #BUG: can't kill anything
+    puts ssh.exec!('kill -9 `ps -aux | grep python | awk \'{print $2}\'`')
     puts 'start client in ' + h['host']
-    ssh.exec("nohup ~/tools/bin/python3 ~/youtube-crawler/client/client.py -s gaisq.cs.ccu.edu.tw:4567 -t 10 -n 500 -k \"#{h['key']}\" > ./log#{h['host']} &")
+    ssh.exec("nohup ~/tools/bin/python3 ~/youtube-crawler/client/client.py -s gaisq.cs.ccu.edu.tw:4567 -t 10 -n 500 -k \"#{h['key']}\" >> ./log#{h['host']} &")
+    puts("nohup ~/tools/bin/python3 ~/youtube-crawler/client/client.py -s gaisq.cs.ccu.edu.tw:4567 -t 10 -n 500 -k \"#{h['key']}\" >> ./log#{h['host']} &")
   end
 end
